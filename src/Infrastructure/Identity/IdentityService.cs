@@ -1,25 +1,35 @@
-﻿using gql.Application.Common.Interfaces;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using gql.Application.Common.Interfaces;
 using gql.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace gql.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
+    private readonly IConfiguration _configuration;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService)
+        IAuthorizationService authorizationService,
+        IConfiguration configuration)
     {
         _userManager = userManager;
+        _signInManager = signInManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
+        _configuration = configuration;
     }
 
     public async Task<string> GetUserNameAsync(string userId)
@@ -63,6 +73,36 @@ public class IdentityService : IIdentityService
         var result = await _authorizationService.AuthorizeAsync(principal, policyName);
 
         return result.Succeeded;
+    }
+
+    public async Task<string?> AuthenticateAsync(string userName, string password)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        //sign in  
+        var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
+
+        if (signInResult.Succeeded)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var principal = await _signInManager.CreateUserPrincipalAsync(user);
+            var token = new JwtSecurityToken(issuer: _configuration["JWT:ValidIssuer"]
+                , audience: _configuration["JWT:ValidAudience"],
+                claims: principal.Claims,
+                expires: DateTime.Now.AddHours(2),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        return null;
     }
 
     public async Task<Result> DeleteUserAsync(string userId)

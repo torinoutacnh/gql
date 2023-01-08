@@ -1,13 +1,17 @@
-﻿using gql.Application.Common.Interfaces;
+﻿using System.Text;
+using gql.Application.Common.Interfaces;
 using gql.Infrastructure.Files;
 using gql.Infrastructure.Identity;
 using gql.Infrastructure.Persistence;
 using gql.Infrastructure.Persistence.Interceptors;
 using gql.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -45,11 +49,32 @@ public static class ConfigureServices
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
 
-        services.AddAuthentication()
-            .AddIdentityServerJwt();
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddIdentityServerJwt()
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:SecretKey"])),
+                    //ValidAudience = configuration["JWT:ValidAudience"],
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero // Override the default clock skew of 5 mins
+                };
+            });
 
         services.AddAuthorization(options =>
-            options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme‌​)
+                    .RequireAuthenticatedUser().Build();
+                options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator"));
+            });
 
         return services;
     }

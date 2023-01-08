@@ -131,5 +131,8 @@
       }
     }
   },
-  "defaultProject": "gql.WebUI"
+  "defaultProject": "gql.WebUI",
+  "cli": {
+    "analytics": "129adeeb-ec78-4b83-87a0-4023130f2e57"
+  }
 }
