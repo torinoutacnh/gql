@@ -5,7 +5,6 @@ using gql.Infrastructure.Identity;
 using gql.Infrastructure.Persistence;
 using gql.Infrastructure.Persistence.Interceptors;
 using gql.Infrastructure.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -42,15 +41,11 @@ public static class ConfigureServices
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
-        //services.AddIdentityServer()
-        //    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
-
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddIdentityServerJwt()
             .AddJwtBearer(options =>
             {
                 options.RequireHttpsMetadata = false;
