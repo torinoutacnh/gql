@@ -81,7 +81,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return null;
+            throw new KeyNotFoundException($"User {userName} not found!");
         }
 
         //sign in  
@@ -102,7 +102,7 @@ public class IdentityService : IIdentityService
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        return null;
+        throw new InvalidOperationException("Wrong password !");
     }
 
     public async Task<Result> DeleteUserAsync(string userId)

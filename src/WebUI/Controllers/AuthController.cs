@@ -7,6 +7,7 @@ using WebUI.Models;
 
 namespace WebUI.Controllers;
 
+[Authorize]
 public class AuthController : ApiControllerBase
 {
     private readonly IIdentityService _identityService;
@@ -17,7 +18,7 @@ public class AuthController : ApiControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("/login")]
+    [HttpPost("~/login")]
     public async Task<IActionResult> Login(LoginWithPassword model)
     {
         var result = await _identityService.AuthenticateAsync(model.UserName, model.Password);

@@ -6,7 +6,9 @@ using GraphQL;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using WebUI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,11 +72,14 @@ else
 }
 
 app.UseHealthChecks("/health");
+app.ConfigureExceptionHandler(app.Logger);
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
+
     app.UseSwagger(b => {
         b.SerializeAsV2 = true;
     });
@@ -87,7 +92,7 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 
 app.UseAuthentication();
-app.UseIdentityServer();
+//app.UseIdentityServer();
 app.UseAuthorization();
 
 app.MapControllerRoute(
