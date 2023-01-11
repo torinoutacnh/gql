@@ -9,10 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace gql.Application.Gql.Schemas;
 
-public class Demo1 : Schema
+public class RootSchema : Schema
 {
-    public Demo1(IServiceProvider services) : base(services)
+    public RootSchema(IServiceProvider services) : base(services)
     {
-        Query = services.GetRequiredService<Query1>();
+        Query = services.GetRequiredService<RootQuery>();
     }
 }

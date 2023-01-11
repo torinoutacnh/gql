@@ -18,7 +18,7 @@ public class AuthController : ApiControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("~/login")]
+    [HttpPost("[action]")]
     public async Task<IActionResult> Login(LoginWithPassword model)
     {
         var result = await _identityService.AuthenticateAsync(model.UserName, model.Password);

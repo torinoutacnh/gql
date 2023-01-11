@@ -1,16 +1,31 @@
 using System.Reflection;
 using gql.Application.Gql.Queries;
 using gql.Application.Gql.Schemas;
+using gql.Application.Gql.Types;
 using gql.Infrastructure.Persistence;
 using GraphQL;
+using GraphQL.Execution;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Serilog.Core;
+using Serilog;
 using WebUI.Middleware;
+using Serilog.Debugging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Config logging
+var loggerFactory = new LoggerFactory()
+    .AddSerilog(new LoggerConfiguration()
+    .MinimumLevel.Verbose()
+    .WriteTo.Console()
+    .WriteTo.File("/logs/log", rollingInterval: RollingInterval.Day)
+    .Enrich.FromLogContext()
+    .CreateLogger());
+builder.Services.AddSingleton<ILoggerFactory>(loggerFactory);
 
 // Add swagger
 builder.Services.AddSwaggerGen(options =>
@@ -43,12 +58,6 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebUIServices();
-
-// Add gql
-builder.Services.AddGraphQL(b => b
-                .AddSystemTextJson()
-                .AddSchema<Demo1>()
-                .AddGraphTypes(Assembly.GetAssembly(typeof(Demo1))));
 
 var app = builder.Build();
 
@@ -92,13 +101,14 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 
 app.UseAuthentication();
-//app.UseIdentityServer();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
 
+
+// Setup Graphql
 app.UseGraphQL<ISchema>(path: "/graphql");
 if (app.Environment.IsDevelopment())
 {

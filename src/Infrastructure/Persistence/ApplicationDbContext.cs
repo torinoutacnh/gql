@@ -1,12 +1,15 @@
 ﻿using System.Reflection;
 using gql.Application.Common.Interfaces;
+using gql.Domain.Common;
 using gql.Domain.Entities;
 using gql.Infrastructure.Identity;
 using gql.Infrastructure.Persistence.Interceptors;
 using MediatR;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog.Debugging;
 
 namespace gql.Infrastructure.Persistence;
 
@@ -14,15 +17,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 {
     private readonly IMediator _mediator;
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
+    private readonly ILoggerFactory _loggerFactory;
 
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,
         IMediator mediator,
-        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor) 
+        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor,
+        ILoggerFactory loggerFactory) 
         : base(options)
     {
         _mediator = mediator;
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
+        _loggerFactory = loggerFactory;
     }
 
     public DbSet<TodoList> TodoLists => Set<TodoList>();
@@ -38,6 +44,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        optionsBuilder.UseLoggerFactory(_loggerFactory);
         optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
     }
 
@@ -47,4 +54,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         return await base.SaveChangesAsync(cancellationToken);
     }
+
+    public DbSet<T> Get<T>() where T : BaseAuditableEntity => Set<T>();
 }
