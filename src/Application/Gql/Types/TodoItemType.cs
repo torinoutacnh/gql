@@ -22,26 +22,31 @@ public class TodoItemType : ObjectGraphType<TodoItem>
         _accessor = accessor;
 
 
-        // Config field and can chain more
-        Field(i => i.Id)
+        Field(i => i.Id, nullable: true)
             .Description("TodoItem Id")
             .Name("id");
         Field(i => i.Title, nullable: true);
         Field(i => i.Note, nullable: true);
-        Field(i => i.Priority);
+        Field(i => i.Priority, nullable: true);
         Field(i => i.Reminder, nullable: true);
-        Field(i => i.Done);
+        Field(i => i.Done, nullable: true);
+        Field(i => i.Created, nullable: true);
+        Field(i => i.CreatedBy, nullable: true);
+        Field(i => i.LastModified, nullable: true);
+        Field(i => i.LastModifiedBy, nullable: true);
+        Field(i => i.IsDeleted, nullable: true);
 
-        FieldAsync<TodoListType, TodoList>("list", resolve: ctx =>
-        {
-            var loader = accessor.Context
-            .GetOrAddBatchLoader<Guid, TodoList>("GetTodoListByIds",
-                GetTodoListByIds(dbcontext),
-                l => l.Id,
-                maxBatchSize: 5000);
+        Field<TodoListType, TodoList>("list")
+            .ResolveAsync( context =>
+            {
+                var loader = accessor.Context?
+                .GetOrAddBatchLoader<Guid, TodoList>("GetTodoListByIds",
+                    GetTodoListByIds(dbcontext),
+                    l => l.Id,
+                    maxBatchSize: 5000);
 
-            return loader.LoadAsync(ctx.Source.ListId).GetResultAsync();
-        });
+                return loader.LoadAsync(context.Source.ListId).GetResultAsync();
+            });
     }
 
     private static Func<IEnumerable<Guid>, Task<IEnumerable<TodoList>>> GetTodoListByIds(IApplicationDbContext dbcontext)

@@ -32,7 +32,13 @@ public static class ConfigureServices
             b.Services.Register<TodoItemType>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
             b.Services.Register<TodoListType>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
             b.Services.Register<RootQuery>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
-            b.AddSchema<RootSchema>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
+            b.AddSchema<RootSchema>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped)
+            .AddComplexityAnalyzer(opt =>
+            {
+                opt.MaxDepth = 10;
+                opt.MaxComplexity = 50;
+                opt.FieldImpact = 100;
+            });
         });
 
         return services;
