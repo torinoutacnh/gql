@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using gql.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using gql.Infrastructure.Persistence;
 namespace gql.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230112141946_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,9 +256,6 @@ namespace gql.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CategoryParentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
@@ -293,8 +293,6 @@ namespace gql.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoryParentId");
 
                     b.ToTable("BlogCategorys");
                 });
@@ -344,9 +342,6 @@ namespace gql.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("BlogId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CommentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -380,8 +375,6 @@ namespace gql.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CommentId");
 
                     b.ToTable("Comments");
                 });
@@ -1064,15 +1057,6 @@ namespace gql.Infrastructure.Persistence.Migrations
                     b.Navigation("BlogCategory");
                 });
 
-            modelBuilder.Entity("gql.Domain.Entities.BlogCategory", b =>
-                {
-                    b.HasOne("gql.Domain.Entities.BlogCategory", "CategoryParent")
-                        .WithMany("InverseCategoryParent")
-                        .HasForeignKey("CategoryParentId");
-
-                    b.Navigation("CategoryParent");
-                });
-
             modelBuilder.Entity("gql.Domain.Entities.BlogTagMapping", b =>
                 {
                     b.HasOne("gql.Domain.Entities.Blog", "Blog")
@@ -1090,15 +1074,6 @@ namespace gql.Infrastructure.Persistence.Migrations
                     b.Navigation("Blog");
 
                     b.Navigation("Tag");
-                });
-
-            modelBuilder.Entity("gql.Domain.Entities.Comment", b =>
-                {
-                    b.HasOne("gql.Domain.Entities.Comment", "CommentNavigation")
-                        .WithMany("InverseCommentNavigation")
-                        .HasForeignKey("CommentId");
-
-                    b.Navigation("CommentNavigation");
                 });
 
             modelBuilder.Entity("gql.Domain.Entities.OrderItem", b =>
@@ -1211,13 +1186,6 @@ namespace gql.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("gql.Domain.Entities.BlogCategory", b =>
                 {
                     b.Navigation("Blogs");
-
-                    b.Navigation("InverseCategoryParent");
-                });
-
-            modelBuilder.Entity("gql.Domain.Entities.Comment", b =>
-                {
-                    b.Navigation("InverseCommentNavigation");
                 });
 
             modelBuilder.Entity("gql.Domain.Entities.Order", b =>
