@@ -107,7 +107,6 @@ app.UseAuthorization();
 app.MapGraphQL<ISchema>(pattern: "/graphql").RequireAuthorization();
 if (app.Environment.IsDevelopment())
 {
-    app.UseGraphQLPlayground(options: new GraphQL.Server.Ui.Playground.PlaygroundOptions() { } );
     app.UseGraphQLAltair(options: new GraphQL.Server.Ui.Altair.AltairOptions() { });
 }
 

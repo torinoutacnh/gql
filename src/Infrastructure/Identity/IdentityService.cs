@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using gql.Application.Common.Interfaces;
 using gql.Application.Common.Models;
@@ -75,7 +76,7 @@ public class IdentityService : IIdentityService
         return result.Succeeded;
     }
 
-    public async Task<string?> AuthenticateAsync(string userName, string password)
+    public async Task<dynamic> AuthenticateAsync(string userName, string password)
     {
         var user = await _userManager.FindByNameAsync(userName);
 
@@ -99,7 +100,9 @@ public class IdentityService : IIdentityService
                 expires: DateTime.Now.AddHours(2),
                 signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            dynamic tokenres = new { access_token = new JwtSecurityTokenHandler().WriteToken(token) };
+
+            return tokenres;
         }
 
         throw new InvalidOperationException("Wrong password !");
