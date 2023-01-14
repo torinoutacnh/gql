@@ -21,20 +21,20 @@ public class RootQuery: ObjectGraphType
     {
         Name = "Root";
 
-        Field<ListGraphType<TodoItemType>, List<TodoItem>>("TodoItems")
-            .ResolveAsync(context =>
-            {
-                return dbContext.Get<TodoItem>().AsNoTracking().ToListAsync();
-            });
-
-        //Field<PaginatedListType, PaginatedList<object>>("TodoItems")
-        //    .Argument<PageModel>("pageModel")
+        //Field<ListGraphType<TodoItemType>, List<TodoItem>>("TodoItems")
         //    .ResolveAsync(context =>
         //    {
-        //        var model = context.GetArgument<PageModel>("pageModel");
-
-        //        return PaginatedList<object>.CreateAsync(dbContext.Get<TodoItem>().AsNoTracking(), model.Page, model.Size);
+        //        return dbContext.Get<TodoItem>().AsNoTracking().ToListAsync();
         //    });
+
+        Field<PaginatedListType<TodoItem>, PaginatedList<TodoItem>>("TodoItems")
+            .Argument<PageModelInputType>("pageModel")
+            .ResolveAsync(context =>
+            {
+                var model = context.GetArgument<PageModel>("pageModel");
+
+                return PaginatedList<TodoItem>.CreateAsync(dbContext.Get<TodoItem>().AsNoTracking(), model.Page, model.Size);
+            });
 
         Field<ListGraphType<TodoItemType>, List<TodoItem>>("TodoItemById")
             .Argument<IdGraphType>("itemId")

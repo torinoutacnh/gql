@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GraphQL;
 using GraphQL.Types;
 
 namespace gql.Application.Gql.Commons;
@@ -23,3 +24,4 @@ public interface IAuditableEntityResolver
 {
     public Type ResolveObject(Type graphType);
 }
+

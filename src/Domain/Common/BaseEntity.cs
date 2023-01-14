@@ -1,11 +1,17 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using GraphQL;
 
 namespace gql.Domain.Common;
 
 public abstract class BaseEntity
 {
     public Guid Id { get; set; }
+
+    protected BaseEntity() 
+    {
+        Id= Guid.NewGuid();
+    }
 
     private readonly List<BaseEvent> _domainEvents = new();
 

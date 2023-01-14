@@ -12,12 +12,16 @@ using gql.Application.Utils;
 using GraphQL.Types;
 using GraphQL.DI;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using gql.Application.Gql.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ConfigureServices
 {
-    public static IGraphQLBuilder AddGqlInterfaceDict(this IGraphQLBuilder services)
+    public static IGraphQLBuilder AddGqlInterfaceDict(this IGraphQLBuilder builder)
     {
         var types = ReflectionUtils.GetTypeImplementedT<BaseAuditableEntity>();
         var dict = new Dictionary<Type, Type>();
@@ -31,9 +35,18 @@ public static class ConfigureServices
                 dict.Add(tGrapth, typeEntity);
         }
 
-        services.Services.Register<IAuditableEntityResolver>(new AuditableEntityResolver(dict));
+        builder.Services.Register<IAuditableEntityResolver>(new AuditableEntityResolver(dict));
 
-        return services;
+        return builder;
+    }
+
+    public static IGraphQLBuilder AddPaginatedList(this IGraphQLBuilder builder)
+    {
+        builder.Services.Register(typeof(PaginatedListType<>), typeof(PaginatedListType<>), GraphQL.DI.ServiceLifetime.Scoped);
+        builder.Services.TryRegister(typeof(AutoRegisteringObjectGraphType<>), typeof(AutoRegisteringObjectGraphType<>), GraphQL.DI.ServiceLifetime.Scoped);
+        builder.Services.TryRegister(typeof(ObjectGraphType<>), typeof(ObjectGraphType<>), GraphQL.DI.ServiceLifetime.Scoped);
+        builder.AddClrTypeMappings();
+        return builder;
     }
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
@@ -46,6 +59,18 @@ public static class ConfigureServices
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
 
+        // kestrel
+        services.Configure<KestrelServerOptions>(options =>
+        {
+            options.AllowSynchronousIO = true;
+        });
+
+        // IIS
+        services.Configure<IISServerOptions>(options =>
+        {
+            options.AllowSynchronousIO = true;
+        });
+
         // Add gql
         services.AddGraphQL(b => {
             b.AddSystemTextJson()
@@ -55,11 +80,14 @@ public static class ConfigureServices
             .AddExecutionStrategySelector<StrategySelector>();
 
             b.AddGqlInterfaceDict();
+            b.AddPaginatedList();
 
-            b.Services.Register<BaseAuditableInterface>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
-            b.Services.Register<TodoItemType>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
-            b.Services.Register<TodoListType>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
-            b.Services.Register<RootQuery>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
+            b.Services.Register<PageModelInputType>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped, replace: true);
+            b.Services.Register<BaseAuditableInterface>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped, replace: true);
+            b.Services.Register<BaseEventType>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped, replace: true);
+            b.Services.Register<TodoItemType>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped, replace: true);
+            b.Services.Register<TodoListType>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped, replace: true);
+            b.Services.Register<RootQuery>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped, replace: true);
             b.AddSchema<RootSchema>(serviceLifetime: GraphQL.DI.ServiceLifetime.Scoped);
             //b.AddComplexityAnalyzer(opt =>
             //{

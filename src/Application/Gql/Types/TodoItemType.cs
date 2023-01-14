@@ -6,30 +6,22 @@ using System.Threading.Tasks;
 using gql.Application.Common.Interfaces;
 using gql.Application.Gql.Commons;
 using gql.Domain.Entities;
+using GraphQL;
 using GraphQL.DataLoader;
 using GraphQL.Types;
 using Microsoft.EntityFrameworkCore;
 
 namespace gql.Application.Gql.Types;
 
-public class TodoItemType : ObjectGraphType<TodoItem>
+public class TodoItemType : AutoRegisteringObjectGraphType<TodoItem>
 {
-    public TodoItemType(IApplicationDbContext dbcontext, IDataLoaderContextAccessor accessor)
+    public TodoItemType(IApplicationDbContext dbcontext, IDataLoaderContextAccessor accessor):base(x => x.DomainEvents)
     {
-        Name = nameof(TodoItem);
-
-        Field(i => i.Title).Description("Task title, required unique");
-
-        Field(i => i.Id);
-        Field(i => i.Created);
-        Field(i => i.CreatedBy, nullable: true);
-        Field(i => i.LastModified, nullable: true);
-        Field(i => i.LastModifiedBy, nullable: true);
-        Field(i => i.IsDeleted);
+        Name = "TodoItemEntity";
 
         Interface<BaseAuditableInterface>();
 
-        Field<TodoListType, TodoList>("list")
+        Field<TodoListType, TodoList>("TodoListOfTodoItem")
             .ResolveAsync( context =>
             {
                 var loader = accessor.Context?

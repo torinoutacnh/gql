@@ -9,18 +9,11 @@ using GraphQL.Types;
 
 namespace gql.Application.Gql.Commons;
 
-public class BaseAuditableInterface: InterfaceGraphType<BaseAuditableEntity>
+public class BaseAuditableInterface: AutoRegisteringInterfaceGraphType<BaseAuditableEntity>
 {
-    public BaseAuditableInterface(IAuditableEntityResolver auditableEntityResolver) 
+    public BaseAuditableInterface(IAuditableEntityResolver auditableEntityResolver): base(x => x.DomainEvents)
     {
-        Name = nameof(BaseAuditableEntity);
-
-        Field(i => i.Id).Description("TodoItem Id").Name("id");
-        Field(i => i.Created).Description("Date created");
-        Field(i => i.CreatedBy, nullable: true).Description("Created by user with id");
-        Field(i => i.LastModified, nullable: true).Description("Last modified date");
-        Field(i => i.LastModifiedBy, nullable: true).Description("Modified by user with id");
-        Field(i => i.IsDeleted).Description("Deleted status");
+        Name = nameof(BaseAuditableInterface);
 
         ResolveType = obj =>
         {
