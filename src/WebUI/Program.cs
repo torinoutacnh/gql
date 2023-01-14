@@ -1,12 +1,5 @@
-using System.Reflection;
-using gql.Application.Gql.Queries;
-using gql.Application.Gql.Schemas;
 using gql.Infrastructure.Persistence;
-using GraphQL;
-using GraphQL.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using WebUI.Middleware;
 
@@ -43,12 +36,6 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebUIServices();
-
-// Add gql
-builder.Services.AddGraphQL(b => b
-                .AddSystemTextJson()
-                .AddSchema<Demo1>()
-                .AddGraphTypes(Assembly.GetAssembly(typeof(Demo1))));
 
 var app = builder.Build();
 
@@ -92,18 +79,11 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 
 app.UseAuthentication();
-//app.UseIdentityServer();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
-
-app.UseGraphQL<ISchema>(path: "/graphql");
-if (app.Environment.IsDevelopment())
-{
-    app.UseGraphQLPlayground();
-}
 
 app.MapRazorPages();
 

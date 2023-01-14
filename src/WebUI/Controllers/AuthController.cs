@@ -1,7 +1,6 @@
 ﻿using gql.Application.Common.Interfaces;
-using gql.Infrastructure.Identity;
 using gql.WebUI.Controllers;
-using GraphQL;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebUI.Models;
 
