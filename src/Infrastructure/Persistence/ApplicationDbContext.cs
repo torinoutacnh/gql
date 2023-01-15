@@ -26,8 +26,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     }
 
     public DbSet<TodoList> TodoLists => Set<TodoList>();
-
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+
+    public DbSet<Blog> Blogs => Set<Blog>();
+    public DbSet<BlogCategory> BlogCategorys => Set<BlogCategory>();
+    public DbSet<BlogTagMapping> BlogTagMappings => Set<BlogTagMapping>();
+    public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<Picture> Pictures => Set<Picture>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductAttribute> ProductAttributes => Set<ProductAttribute>();
+    public DbSet<ProductAttributeMapping> ProductAttributeMappings => Set<ProductAttributeMapping>();
+    public DbSet<ProductCategory> ProductCategorys => Set<ProductCategory>();
+    public DbSet<ProductPictureMapping> ProductPictureMappings => Set<ProductPictureMapping>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<WebsiteAttribute> WebsiteAttributes => Set<WebsiteAttribute>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
