@@ -11,6 +11,21 @@
     <ItemGroup>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.4" />
+        <PackageReference Include="HotChocolate" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.Abstractions" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.AspNetCore" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.AspNetCore.Abstractions" Version="10.5.5" />
+        <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.AspNetCore.HttpGet" Version="10.5.5" />
+        <PackageReference Include="HotChocolate.AspNetCore.HttpGetSchema" Version="10.5.5" />
+        <PackageReference Include="HotChocolate.AspNetCore.HttpPost" Version="10.5.5" />
+        <PackageReference Include="HotChocolate.AspNetCore.Subscriptions" Version="10.5.5" />
+        <PackageReference Include="HotChocolate.Data" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.Data.AutoMapper" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.Data.EntityFramework" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.Language" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.Subscriptions" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.Utilities" Version="12.16.0" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0-rc.2.22472.11" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
@@ -18,6 +33,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Domain\Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="gql\Commons\" />
     </ItemGroup>
 
 </Project>

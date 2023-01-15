@@ -75,7 +75,7 @@ public class IdentityService : IIdentityService
         return result.Succeeded;
     }
 
-    public async Task<string?> AuthenticateAsync(string userName, string password)
+    public async Task<dynamic> AuthenticateAsync(string userName, string password)
     {
         var user = await _userManager.FindByNameAsync(userName);
 
@@ -99,7 +99,7 @@ public class IdentityService : IIdentityService
                 expires: DateTime.Now.AddHours(2),
                 signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new { access_token = new JwtSecurityTokenHandler().WriteToken(token) };
         }
 
         throw new InvalidOperationException("Wrong password !");

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using gql.Application.Common.Interfaces;
+using gql.Domain.Common;
 using gql.Domain.Entities;
 using gql.Infrastructure.Identity;
 using gql.Infrastructure.Persistence.Interceptors;
@@ -45,5 +46,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         await _mediator.DispatchDomainEvents(this);
 
         return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    public DbSet<T> Get<T>() where T : BaseAuditableEntity
+    {
+        return Set<T>();
     }
 }
