@@ -7,13 +7,13 @@ using gql.Domain.Entities;
 
 namespace gql.Application.gql.Types;
 
-public class TodoListType : ObjectType<TodoList>
+public class TodoItemType : ObjectType<TodoItem>
 {
     protected override void Configure(
-        IObjectTypeDescriptor<TodoList> descriptor)
+        IObjectTypeDescriptor<TodoItem> descriptor)
     {
         descriptor.Ignore(x=>x.DomainEvents);
-        descriptor.Field(i => i.Items)
-            .Type<ListType<TodoItemType>>();
+        descriptor.Field(i=>i.List)
+            .Type<TodoListType>();
     }
 }

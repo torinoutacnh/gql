@@ -12,8 +12,8 @@ namespace gql.Application.gql.Queries;
 
 public class RootQuery
 {
-    //[UsePaging(MaxPageSize = 100, IncludeTotalCount = true, DefaultPageSize = 10)]
     public IQueryable<TodoList> GetTodoLists([Service] IApplicationDbContext applicationDbContext) => applicationDbContext.Get<TodoList>().AsNoTracking();
+    public IQueryable<TodoItem> GetTodoItems([Service] IApplicationDbContext applicationDbContext) => applicationDbContext.Get<TodoItem>().AsNoTracking();
 }
 
 public class RootQueryType : ObjectType<RootQuery>
@@ -24,6 +24,13 @@ public class RootQueryType : ObjectType<RootQuery>
         descriptor
             .Field(f => f.GetTodoLists(default!))
             .Type<ListType<TodoListType>>()
+            .UsePaging()
+            .UseSorting()
+            .UseFiltering();
+
+        descriptor
+            .Field(f => f.GetTodoItems(default!))
+            .Type<ListType<TodoItemType>>()
             .UsePaging()
             .UseSorting()
             .UseFiltering();

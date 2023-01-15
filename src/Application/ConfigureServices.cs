@@ -18,14 +18,18 @@ public static class ConfigureServices
     {
         if (configuration.GetValue<bool>("UseRedis"))
         {
+            // Setup redis cache
             var multiplexer = ConnectionMultiplexer
                 .Connect(configuration["RedisSettings:DefaultConnection"] ?? throw new InvalidOperationException("Section RedisSettings:DefaultConnection not found!"));
             builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+
             builder.AddReadOnlyRedisQueryStorage(provider => provider.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
         }
         else
         {
+            // Setup mem cache
             builder.Services.AddMemoryCache();
+
             builder.AddInMemoryQueryStorage();
         }
 
@@ -44,6 +48,12 @@ public static class ConfigureServices
 
         services
             .AddGraphQLServer()
+            .ModifyRequestOptions(o =>
+            {
+                o.Complexity.ApplyDefaults = true;
+                o.Complexity.DefaultComplexity = 1;
+                o.Complexity.MaximumAllowed = 2000;
+            })
             .AddAuthorization()
             .AddSorting()
             .AddFiltering()
