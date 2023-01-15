@@ -24,8 +24,8 @@ public class RootQueryType : ObjectType<RootQuery>
         descriptor
             .Field(f => f.GetTodoLists(default!))
             .Type<ListType<TodoListType>>()
-            .UseSorting()
             .UsePaging()
+            .UseSorting()
             .UseFiltering();
     }
 }
