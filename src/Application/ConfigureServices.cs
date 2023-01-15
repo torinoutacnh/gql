@@ -6,12 +6,33 @@ using gql.Application.gql.Queries;
 using gql.Application.gql.Types;
 using gql.Application.Common.Interfaces;
 using HotChocolate.Types.Pagination;
+using StackExchange.Redis;
+using Microsoft.Extensions.Configuration;
+using HotChocolate.Execution.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IRequestExecutorBuilder AddCustomePersistQuery(this IRequestExecutorBuilder builder, IConfiguration configuration)
+    {
+        if (configuration.GetValue<bool>("UseRedis"))
+        {
+            var multiplexer = ConnectionMultiplexer
+                .Connect(configuration["RedisSettings:DefaultConnection"] ?? throw new InvalidOperationException("Section RedisSettings:DefaultConnection not found!"));
+            builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+            builder.AddReadOnlyRedisQueryStorage(provider => provider.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
+        }
+        else
+        {
+            builder.Services.AddMemoryCache();
+            builder.AddInMemoryQueryStorage();
+        }
+
+        return builder;
+    }
+
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -23,6 +44,7 @@ public static class ConfigureServices
 
         services
             .AddGraphQLServer()
+            .AddAuthorization()
             .AddSorting()
             .AddFiltering()
             .AddProjections()
@@ -30,6 +52,8 @@ public static class ConfigureServices
             .AddQueryType<RootQueryType>()
             .AddType<TodoListType>()
             .AddApolloTracing()
+            .UsePersistedQueryPipeline()   
+            .AddCustomePersistQuery(configuration)
             .RegisterService<IApplicationDbContext>(ServiceKind.Synchronized);
 
         return services;

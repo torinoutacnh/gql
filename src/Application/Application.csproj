@@ -24,10 +24,14 @@
         <PackageReference Include="HotChocolate.Data.AutoMapper" Version="12.16.0" />
         <PackageReference Include="HotChocolate.Data.EntityFramework" Version="12.16.0" />
         <PackageReference Include="HotChocolate.Language" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.PersistedQueries.InMemory" Version="12.16.0" />
+        <PackageReference Include="HotChocolate.PersistedQueries.Redis" Version="12.16.0" />
         <PackageReference Include="HotChocolate.Subscriptions" Version="12.16.0" />
         <PackageReference Include="HotChocolate.Utilities" Version="12.16.0" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0-rc.2.22472.11" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.2" />
+        <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
     </ItemGroup>
 
